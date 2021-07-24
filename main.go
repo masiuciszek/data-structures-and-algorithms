@@ -2,84 +2,107 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 )
 
-// AddChildFn func
-// type AddChildFn func(string) Node
-
 // Node struct
 type Node struct {
-	key      string
-	children []*Node
+	data int
+	next *Node
 }
 
-// CreateNode func
-func (n *Node) CreateNode(key string) *Node {
-	return &Node{
-		key:      key,
-		children: []*Node{},
+// LinkedList struct
+type LinkedList struct {
+	head *Node
+	tail *Node
+	size int
+}
+
+func makeList() LinkedList {
+	return LinkedList{head: nil, tail: nil, size: 0}
+}
+
+func makeNode(data int) Node {
+	return Node{data: data, next: nil}
+}
+
+func (l *LinkedList) append(data int) *Node {
+	newNode := makeNode(data)
+	if l.head == nil {
+		l.head = &newNode
+		l.tail = &newNode
+		l.size++
+		return &newNode
 	}
+	l.tail.next = &newNode
+	l.tail = &newNode
+	l.size++
+	return &newNode
 }
 
-// AddChild func
-func (n *Node) AddChild(key string) *Node {
-	node := n.CreateNode(key)
-	n.children = append(n.children, node)
-	return node
+func (l *LinkedList) prepend(data int) *Node {
+	newNode := makeNode(data)
+	if l.head == nil {
+		l.head = &newNode
+		l.tail = &newNode
+		l.size++
+		return &newNode
+	}
+
+	newNode.next = l.head
+	l.head = &newNode
+	l.size++
+	return &newNode
 }
 
-// Tree struct
-type Tree struct {
-	root *Node
+func (l *LinkedList) getSize() int {
+	return l.size
 }
 
-// CreateTree func
-func (t *Tree) CreateTree(key string) *Tree {
-	var node Node
-	t.root = node.CreateNode(key)
-	return t
+func (l *LinkedList) print() string {
+	xs := []string{}
+	current := l.head
+
+	for current != nil {
+		xs = append(xs, strconv.Itoa(current.data))
+		current = current.next
+	}
+
+	return strings.Join(xs, " -> ")
+
 }
 
-// AddKeyToResult func
-type AddKeyToResult = func(result *string, node *Node, level int)
+func (l *LinkedList) get(index int) *Node {
+	if index == 0 {
+		return l.head
+	}
+	if index > l.size {
+		return nil
+	}
+	if index == l.size-1 {
+		return l.tail
+	}
 
-// GetRoot func
-func (t *Tree) GetRoot() *Node {
-	return t.root
-}
-
-func (t *Tree) print() string {
-	res := ""
-	traverse(&res, t.GetRoot(), addKeyToResult, 0)
-	return res
-}
-
-func traverse(result *string, node *Node, fn AddKeyToResult, level int) {
-	fn(result, node, level)
-	if len(node.children) > 0 {
-		for _, n := range node.children {
-			traverse(result, n, fn, level+1)
+	counter := 0
+	current := l.head
+	for current != nil {
+		if counter == index {
+			return current
 		}
+		counter++
+		current = current.next
 	}
-}
-
-func addKeyToResult(result *string, node *Node, level int) {
-	nodeKey := fmt.Sprintf("%s", node.key)
-	if len(*result) == 0 {
-		*result += nodeKey
-	} else {
-		*result += "\n " + strings.Repeat(" ", level*2) + " " + node.key
-	}
+	return nil
 }
 
 func main() {
-	var dom Tree
-	dom.CreateTree("html")
-	body := dom.GetRoot().AddChild("body")
-	footer := dom.GetRoot().AddChild("footer")
-	footer.AddChild("ul --- social media list")
-	main := body.AddChild("main")
-	main.AddChild("h1 --- hello")
-	fmt.Println(dom.print())
+	ll := makeList()
+	ll.append(2)
+	ll.append(12)
+	ll.append(33)
+	ll.append(45)
+	ll.prepend(100)
+
+	fmt.Println(ll.print())
 }
