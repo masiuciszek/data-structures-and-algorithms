@@ -3,7 +3,7 @@ export const baseTenToBinary = (n: number): string => {
   let binary = (num % 2).toString()
 
   while (num > 1) {
-    num = num / 2
+    num = Math.floor(num / 2)
     binary = (num % 2) + binary
   }
   return binary
